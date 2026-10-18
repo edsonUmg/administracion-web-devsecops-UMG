@@ -123,3 +123,12 @@ module.exports = { createApp };
 // PRUEBA NEGATIVA: patrón inseguro intencional (se descarta, no se mergea)
 const { exec } = require('node:child_process');
 module.exports.inseguro = (req) => exec('ls ' + req.query.dir);
+
+// PRUEBA NEGATIVA: se descarta, no se mergea
+const cp = require('node:child_process');
+const rutaInsegura = (req, res) => {
+  const salida = cp.execSync('ls ' + req.query.dir);
+  res.send(salida.toString());
+};
+const evalInseguro = (req) => eval(req.query.expr);
+module.exports.pruebaNegativa = { rutaInsegura, evalInseguro };
