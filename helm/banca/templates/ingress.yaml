@@ -1,0 +1,38 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: {{ .Values.namespace }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: banca-tls
+  namespace: {{ .Values.namespace }}
+spec:
+  secretName: banca-tls
+  dnsNames: [{{ .Values.host }}]
+  issuerRef: { name: selfsigned, kind: Issuer }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: banca-api
+  namespace: {{ .Values.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [{{ .Values.host }}]
+      secretName: banca-tls
+  rules:
+    - host: {{ .Values.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: banca-api, port: { number: 80 } }

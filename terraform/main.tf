@@ -4,7 +4,7 @@ locals {
   # Zonas de red = namespaces. PSA: nivel de Pod Security por zona.
   namespaces = {
     "banca-prod"     = "restricted" # zona de aplicación: el nivel más estricto
-    "ingress"        = "baseline"
+    "ingress"        = "privileged"
     "seguridad"      = "baseline"
     "gitops"         = "baseline"
     "observabilidad" = "privileged" # node-exporter requiere hostPID/hostNetwork
