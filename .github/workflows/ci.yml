@@ -24,7 +24,7 @@ jobs:
     name: Pruebas unitarias
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -42,7 +42,7 @@ jobs:
     name: Secretos (Gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # historial completo
       - name: Gitleaks
@@ -57,7 +57,7 @@ jobs:
     container:
       image: semgrep/semgrep:latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Semgrep (falla ante hallazgos)
         run: |
           semgrep scan --metrics=off --error \
@@ -69,7 +69,7 @@ jobs:
     name: SCA (npm audit + Trivy)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -86,7 +86,7 @@ jobs:
     name: IaC (Trivy config)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Misconfiguraciones (informativo al inicio)
         run: |
           docker run --rm -v "$PWD:/work" aquasec/trivy:latest config \
@@ -102,7 +102,7 @@ jobs:
       packages: write   # publicar en GHCR
       id-token: write   # identidad OIDC para Cosign keyless
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Nombre de imagen en minúsculas (GHCR lo exige)
         run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" >> "$GITHUB_ENV"
