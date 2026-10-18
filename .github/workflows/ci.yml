@@ -140,7 +140,7 @@ jobs:
       # --- Solo desde main: publicar y firmar ---
       - name: Login en GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
