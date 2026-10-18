@@ -119,3 +119,7 @@ function createApp({ db, adminToken = process.env.ADMIN_TOKEN } = {}) {
 }
 
 module.exports = { createApp };
+
+// PRUEBA NEGATIVA: patrón inseguro intencional (se descarta, no se mergea)
+const { exec } = require('node:child_process');
+module.exports.inseguro = (req) => exec('ls ' + req.query.dir);
