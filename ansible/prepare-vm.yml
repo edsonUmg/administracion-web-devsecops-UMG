@@ -1,0 +1,64 @@
+---
+- name: Preparar VM de laboratorio Banco_MIBC_UMG
+  hosts: localhost
+  connection: local
+  become: true
+  vars:
+    swap_file: /swapfile
+    swap_size_gb: 4
+    lab_user: "{{ lookup('env', 'SUDO_USER') | default(ansible_user_id, true) }}"
+  tasks:
+    - name: Paquetes base
+      ansible.builtin.apt:
+        name: [git, curl, jq, make, unzip, ca-certificates, docker.io]
+        state: present
+        update_cache: true
+
+    - name: Servicio Docker activo
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Usuario del laboratorio en el grupo docker
+      ansible.builtin.user:
+        name: "{{ lab_user }}"
+        groups: docker
+        append: true
+
+    - name: Límites de inotify (necesarios para kind con varios pods)
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/99-kind.conf
+        reload: true
+      loop:
+        - { key: fs.inotify.max_user_watches, value: 524288 }
+        - { key: fs.inotify.max_user_instances, value: 512 }
+
+    - name: Crear swapfile
+      ansible.builtin.command:
+        cmd: "fallocate -l {{ swap_size_gb }}G {{ swap_file }}"
+        creates: "{{ swap_file }}"
+      register: swap_created
+
+    - name: Permisos del swapfile
+      ansible.builtin.file:
+        path: "{{ swap_file }}"
+        mode: "0600"
+
+    - name: Formatear swap
+      ansible.builtin.command: "mkswap {{ swap_file }}"
+      when: swap_created.changed
+
+    - name: Activar swap
+      ansible.builtin.command: "swapon {{ swap_file }}"
+      when: swap_created.changed
+
+    - name: Swap persistente en fstab
+      ansible.posix.mount:
+        path: none
+        src: "{{ swap_file }}"
+        fstype: swap
+        opts: sw
+        state: present
