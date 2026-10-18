@@ -1,0 +1,30 @@
+flowchart TB
+  subgraph HOST[Equipo físico - Windows/Linux/macOS]
+    subgraph VM[VM VirtualBox - Ubuntu 26.04 LTS - 4 vCPU / 7.3 GiB]
+      subgraph KIND[Clúster kind de 1 nodo + Calico]
+        subgraph NS1[ns: ingress]
+          ING[Ingress NGINX]
+        end
+        subgraph NS2[ns: banca-prod - zona de aplicación]
+          APP[API Node.js]
+          DB[(PostgreSQL)]
+        end
+        subgraph NS3[ns: observabilidad]
+          PROM[Prometheus + Grafana + OTel]
+        end
+        subgraph NS4[ns: seguridad]
+          VLT[Vault]
+        end
+        subgraph NS5[ns: gitops]
+          ARGO[Argo CD + Rollouts]
+        end
+      end
+      RUN[Runner GitHub Actions self-hosted]
+    end
+  end
+  GH[(GitHub)] --> RUN
+  GH --> ARGO
+  ING --> APP --> DB
+  PROM -. scrape .-> APP
+  APP -. secretos .-> VLT
+  ARGO -. despliega .-> APP

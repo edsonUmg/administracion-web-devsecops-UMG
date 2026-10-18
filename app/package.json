@@ -1,0 +1,20 @@
+{
+  "name": "banco-mibc-umg-api",
+  "version": "1.0.0",
+  "description": "API bancaria de laboratorio - Banco_MIBC_UMG",
+  "main": "src/server.js",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "pg": "^8.23.1",
+    "prom-client": "^15.1.3"
+  }
+}
