@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Etapa 1: dependencias de producción ----------
-FROM node:22-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /build
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
