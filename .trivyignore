@@ -1,0 +1,11 @@
+# Excepción temporal. Revisión obligatoria antes de 2026-11-18.
+# Motivo: libssl3 de la base distroless (Debian 12.13) sin parche publicado aún.
+# Mitigación: la app usa el OpenSSL embebido de Node.js; no procesa X.509/CMS/PKCS7 externos;
+# NetworkPolicy bloquea egreso; el contenedor es non-root y read-only.
+# Responsable: edson.juarez
+CVE-2026-31789
+CVE-2026-28387
+CVE-2026-28388
+CVE-2026-28389
+CVE-2026-28390
+CVE-2026-45447

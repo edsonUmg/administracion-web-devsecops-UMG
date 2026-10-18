@@ -122,9 +122,9 @@ jobs:
 
       - name: Trivy imagen (bloquea HIGH/CRITICAL con corrección disponible)
         run: |
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:work" \
             aquasec/trivy:latest image --severity HIGH,CRITICAL \
-            --ignore-unfixed --exit-code 1 "$IMAGE:scan"
+            --ignore-unfixed --ignorefile /work/.trivyignore --exit-code 1 "$IMAGE:scan"
 
       - name: SBOM (CycloneDX)
         run: |
