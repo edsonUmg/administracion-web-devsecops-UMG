@@ -62,6 +62,7 @@ jobs:
         run: |
           semgrep scan --metrics=off --error \
             --config p/javascript --config p/nodejs --config p/owasp-top-ten \
+            --config p/command-injection --config p/security-audit \
             app/src
 
   # ---------- 4. SCA ----------
