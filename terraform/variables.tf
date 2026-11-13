@@ -14,3 +14,9 @@ variable "calico_version" {
   type        = string
   default     = "v3.30.3"
 }
+
+variable "prometheus_stack_version" {
+  description = "Versión del chart kube-prometheus-stack (fijada, SSDF PS.3)."
+  type        = string
+  default     = "93.2.2"
+}

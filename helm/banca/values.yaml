@@ -22,3 +22,6 @@ db:
 
 # Los secretos NO viven aquí. Se crean aparte (Fase 7: Vault).
 secretName: banca-secretos
+
+monitoring:
+  enabled: true
