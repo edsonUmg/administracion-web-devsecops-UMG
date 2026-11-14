@@ -1,0 +1,20 @@
+# Aplicación de Argo CD: despliega el chart helm/banca en banca-prod.
+# Durante la Fase 5 apunta a la rama fase5-gitops; tras el merge cambiar a main.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: banca
+  namespace: gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/edsonUmg/administracion-web-devsecops-UMG.git
+    targetRevision: fase5-gitops
+    path: helm/banca
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: banca-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
