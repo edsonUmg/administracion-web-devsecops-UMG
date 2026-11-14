@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/edsonUmg/administracion-web-devsecops-UMG.git
-    targetRevision: fase5-gitops
+    targetRevision: main
     path: helm/banca
   destination:
     server: https://kubernetes.default.svc
