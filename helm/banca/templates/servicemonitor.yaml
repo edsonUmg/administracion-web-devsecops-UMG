@@ -10,6 +10,7 @@ spec:
     matchLabels: { app: banca-api }
   namespaceSelector:
     matchNames: [{{ .Values.namespace }}]
+  podTargetLabels: [rollouts-pod-template-hash]
   endpoints:
     - port: http
       path: /metrics
