@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: banca-api
+  labels: { app: banca-api }
   namespace: {{ .Values.namespace }}
 spec:
   type: ClusterIP
@@ -9,16 +10,31 @@ spec:
   ports:
     - { name: http, port: 80, targetPort: {{ .Values.api.port }} }
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: banca-api
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.api.replicas }}
+  revisionHistoryLimit: 2
   strategy:
-    type: RollingUpdate
-    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+    canary:
+      maxSurge: 1
+      maxUnavailable: 0
+      analysis:
+        startingStep: 1
+        templates:
+          - templateName: tasa-exito-canary
+        args:
+          - name: canary-hash
+            valueFrom:
+              podTemplateHashValue: Latest
+      steps:
+        - setWeight: 20
+        - pause: { duration: 60s }
+        - setWeight: 50
+        - pause: { duration: 60s }
   selector:
     matchLabels: { app: banca-api }
   template:

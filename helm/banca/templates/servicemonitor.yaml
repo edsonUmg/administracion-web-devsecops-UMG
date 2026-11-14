@@ -1,0 +1,18 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: banca-api
+  namespace: {{ .Values.namespace }}
+  labels: { app: banca-api }
+spec:
+  selector:
+    matchLabels: { app: banca-api }
+  namespaceSelector:
+    matchNames: [{{ .Values.namespace }}]
+  podTargetLabels: [rollouts-pod-template-hash]
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+{{- end }}

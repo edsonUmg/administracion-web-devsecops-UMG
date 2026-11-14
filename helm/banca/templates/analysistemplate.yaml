@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: tasa-exito-canary
+  namespace: {{ .Values.namespace }}
+spec:
+  args:
+    - name: canary-hash
+  metrics:
+    - name: tasa-exito
+      initialDelay: 30s
+      interval: 15s
+      failureLimit: 1
+      consecutiveErrorLimit: 4
+      successCondition: result[0] >= 0.99
+      provider:
+        prometheus:
+          address: {{ .Values.monitoring.prometheusAddress }}
+          query: |
+            sum(rate(http_requests_total{namespace="{{ .Values.namespace }}",rollouts_pod_template_hash="{{ `{{args.canary-hash}}` }}",route=~"/cuentas/:id|/transferencias",status_code!~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{namespace="{{ .Values.namespace }}",rollouts_pod_template_hash="{{ `{{args.canary-hash}}` }}",route=~"/cuentas/:id|/transferencias"}[1m]))
