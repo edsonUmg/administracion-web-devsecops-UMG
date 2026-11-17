@@ -1,0 +1,83 @@
+{{- if .Values.monitoring.enabled }}
+# Fase 6: indicadores (SLI), objetivos (SLO) y alertas de la API.
+# SLO de disponibilidad: 99.99 % (presupuesto de error = 1 - 0.9999 = 0.0001).
+# SLO de latencia: 99 % de las solicitudes de negocio en 0.5 s o menos.
+# burnrate = error_ratio / presupuesto (0.0001): 1 gasta el presupuesto justo en 30 días.
+# Las ventanas se limitan a 3 h porque Prometheus guarda solo 6 h de datos en el laboratorio.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: banca-slo
+  labels:
+    app: banca-api
+spec:
+  groups:
+    - name: banca-sli
+      interval: 15s
+      rules:
+        - record: banca:sli_error_ratio:rate5m
+          expr: |
+            (sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias",status_code=~"5.."}[5m])) or vector(0)) / sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias"}[5m]))
+        - record: banca:sli_error_ratio:rate30m
+          expr: |
+            (sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias",status_code=~"5.."}[30m])) or vector(0)) / sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias"}[30m]))
+        - record: banca:sli_error_ratio:rate1h
+          expr: |
+            (sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias",status_code=~"5.."}[1h])) or vector(0)) / sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias"}[1h]))
+        - record: banca:sli_error_ratio:rate3h
+          expr: |
+            (sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias",status_code=~"5.."}[3h])) or vector(0)) / sum(rate(http_requests_total{namespace="banca-prod",route=~"/cuentas/:id|/transferencias"}[3h]))
+        - record: banca:sli_burnrate:rate5m
+          expr: |
+            banca:sli_error_ratio:rate5m / 0.0001
+        - record: banca:sli_burnrate:rate30m
+          expr: |
+            banca:sli_error_ratio:rate30m / 0.0001
+        - record: banca:sli_burnrate:rate1h
+          expr: |
+            banca:sli_error_ratio:rate1h / 0.0001
+        - record: banca:sli_burnrate:rate3h
+          expr: |
+            banca:sli_error_ratio:rate3h / 0.0001
+        - record: banca:sli_latencia_lenta_ratio:rate5m
+          expr: |
+            1 - (sum(rate(http_request_duration_seconds_bucket{namespace="banca-prod",route=~"/cuentas/:id|/transferencias",le="0.5"}[5m])) / sum(rate(http_request_duration_seconds_count{namespace="banca-prod",route=~"/cuentas/:id|/transferencias"}[5m])))
+    - name: banca-slo-alertas
+      rules:
+        - alert: BancaSLODisponibilidadBurnRapido
+          expr: banca:sli_burnrate:rate5m > 14.4 and banca:sli_burnrate:rate1h > 14.4
+          for: 1m
+          labels:
+            severity: critical
+            slo: disponibilidad
+          annotations:
+            summary: La API consume el presupuesto de error 14 veces más rápido de lo permitido
+            description: Más de 0.144 % de las solicitudes de negocio fallan (5xx) en los últimos 5 minutos y en la última hora. Seguir el runbook de incidente.
+        - alert: BancaSLODisponibilidadBurnLento
+          expr: banca:sli_burnrate:rate30m > 6 and banca:sli_burnrate:rate3h > 6
+          for: 5m
+          labels:
+            severity: warning
+            slo: disponibilidad
+          annotations:
+            summary: La API consume el presupuesto de error 6 veces más rápido de lo permitido
+            description: Errores sostenidos en las últimas 3 horas; el presupuesto de error de 30 días se agotaría en menos de 5 días.
+        - alert: BancaLatenciaSLOEnRiesgo
+          expr: banca:sli_latencia_lenta_ratio:rate5m > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            slo: latencia
+          annotations:
+            summary: Más de 5 % de las solicitudes tarda más de 0.5 s
+            description: El SLO de latencia (99 % en 0.5 s o menos) está en riesgo.
+        - alert: BancaAPISinInstancias
+          expr: absent(up{job="banca-api",namespace="banca-prod"} == 1)
+          for: 1m
+          labels:
+            severity: critical
+            slo: disponibilidad
+          annotations:
+            summary: Prometheus no ve ninguna instancia de la API en funcionamiento
+            description: Ninguna instancia de banca-api responde a Prometheus en el namespace banca-prod.
+{{- end }}

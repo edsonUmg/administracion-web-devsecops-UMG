@@ -1,0 +1,13 @@
+{{- if .Values.monitoring.enabled }}
+# Fase 6: panel de Grafana. Grafana lo carga solo gracias a la etiqueta grafana_dashboard.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: banca-slo-dashboard
+  labels:
+    grafana_dashboard: "1"
+    app: banca-api
+data:
+  banca-slo.json: |-
+{{ .Files.Get "files/slo-dashboard.json" | indent 4 }}
+{{- end }}
