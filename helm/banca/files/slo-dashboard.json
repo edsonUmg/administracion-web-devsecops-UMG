@@ -8,7 +8,7 @@
   ],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
+  "version": 2,
   "editable": true,
   "refresh": "15s",
   "time": {
@@ -25,12 +25,12 @@
     {
       "id": 1,
       "type": "stat",
-      "title": "Disponibilidad (últimos 5 min)",
+      "title": "Disponibilidad 5 min",
       "description": "SLI de disponibilidad: respuestas que no son 5xx en /cuentas/:id y /transferencias. Objetivo: 99.99 %",
       "gridPos": {
         "x": 0,
         "y": 0,
-        "w": 6,
+        "w": 5,
         "h": 4
       },
       "targets": [
@@ -81,12 +81,12 @@
     {
       "id": 2,
       "type": "stat",
-      "title": "Disponibilidad (última hora)",
+      "title": "Disponibilidad 1 h",
       "description": "",
       "gridPos": {
-        "x": 6,
+        "x": 5,
         "y": 0,
-        "w": 6,
+        "w": 5,
         "h": 4
       },
       "targets": [
@@ -140,9 +140,9 @@
       "title": "Burn rate (1 h)",
       "description": "1 = el presupuesto de error se gasta justo en 30 días. Alerta crítica con 14.4",
       "gridPos": {
-        "x": 12,
+        "x": 10,
         "y": 0,
-        "w": 6,
+        "w": 5,
         "h": 4
       },
       "targets": [
@@ -197,12 +197,12 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Presupuesto de error en 30 días (minutos)",
+      "title": "Presupuesto 30 d (min)",
       "description": "Indisponibilidad permitida por el SLO de 99.99 %: 30 días x 24 h x 60 min x 0.0001",
       "gridPos": {
-        "x": 18,
+        "x": 15,
         "y": 0,
-        "w": 3,
+        "w": 5,
         "h": 4
       },
       "targets": [
@@ -252,9 +252,9 @@
       "title": "Alertas SLO activas",
       "description": "",
       "gridPos": {
-        "x": 21,
+        "x": 20,
         "y": 0,
-        "w": 3,
+        "w": 4,
         "h": 4
       },
       "targets": [
